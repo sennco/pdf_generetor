@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import jsPDF from "jspdf";
-import imageCompression from "browser-image-compression";
-import "./style.css"
+import "./style.css";
 
 const MAX_IMAGES = 20; // Limite máximo de imagens
 
@@ -9,16 +8,7 @@ const ImageToPdf = () => {
   const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const compressImage = async (file: File) => {
-    const options = {
-      maxSizeMB: 1, 
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
-    return await imageCompression(file, options);
-  };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const uploadedFiles = Array.from(e.target.files);
 
@@ -27,12 +17,7 @@ const ImageToPdf = () => {
         return;
       }
 
-      setLoading(true);
-      const compressedFiles = await Promise.all(
-        uploadedFiles.map((file) => compressImage(file))
-      );
-      setImages(compressedFiles);
-      setLoading(false);
+      setImages(uploadedFiles);
     }
   };
 
@@ -48,8 +33,8 @@ const ImageToPdf = () => {
             const img = new Image();
             img.src = e.target.result as string;
             img.onload = () => {
-              const imgWidth = 210;
-              const imgHeight = (img.height * imgWidth) / img.width;
+              const imgWidth = 210; // Largura da página A4
+              const imgHeight = (img.height * imgWidth) / img.width; // Calcula altura proporcional
               if (index > 0) pdf.addPage();
               pdf.addImage(img, "JPEG", 0, 0, imgWidth, imgHeight);
               resolve();
